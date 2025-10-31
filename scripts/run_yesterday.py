@@ -3,6 +3,7 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 import json
+from dotenv import load_dotenv
 
 
 def compute_yesterday(date_format: str = "%Y-%m-%d") -> str:
@@ -17,6 +18,19 @@ def main():
     #   2) date (YYYY-MM-DD). If omitted, use yesterday.
     project_root = Path(__file__).resolve().parents[1]
     default_config = project_root / "configs" / "production_config.json"
+
+    # Load environment variables from .env file (or .env_example as fallback)
+    env_file = project_root / ".env"
+    env_example_file = project_root / ".env_example"
+    
+    if env_file.exists():
+        load_dotenv(env_file)
+        print(f"✅ Loaded environment variables from: {env_file}")
+    elif env_example_file.exists():
+        load_dotenv(env_example_file)
+        print(f"⚠️  Loaded environment variables from .env_example (consider creating .env file): {env_example_file}")
+    else:
+        print(f"⚠️  No .env or .env_example file found in {project_root}")
 
     config_path = sys.argv[1] if len(sys.argv) > 1 else str(default_config)
     run_date = sys.argv[2] if len(sys.argv) > 2 else compute_yesterday()
